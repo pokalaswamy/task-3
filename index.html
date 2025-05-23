@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Interactive Responsive Web App</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1rem;
+    }
+
+    /* Navigation */
+    nav {
+      background-color: #333;
+      padding: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    nav ul {
+      list-style: none;
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+    }
+
+    nav a {
+      color: white;
+      text-decoration: none;
+      font-size: 1.2rem;
+    }
+
+    /* Main Layout */
+    .container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+    }
+
+    .quiz-container, .weather-container {
+      background-color: #f9f9f9;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    h1, h2 {
+      margin-bottom: 1rem;
+    }
+
+    /* Quiz Styles */
+    .question {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    button {
+      padding: 0.8rem;
+      font-size: 1rem;
+      background-color: #333;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #555;
+    }
+
+    #result {
+      margin-top: 1rem;
+      font-size: 1.2rem;
+      font-weight: bold;
+    }
+
+    #next-btn {
+      margin-top: 1rem;
+      display: none;
+    }
+
+    /* Weather Styles */
+    .weather-container input {
+      padding: 0.5rem;
+      font-size: 1rem;
+      margin-right: 0.5rem;
+    }
+
+    #weather-result {
+      margin-top: 1rem;
+      font-size: 1.2rem;
+    }
+
+    /* Media Queries */
+    /* Mobile (≤600px) */
+    @media (max-width: 600px) {
+      nav ul {
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      nav a {
+        font-size: 1rem;
+      }
+
+      .container {
+        grid-template-columns: 1fr;
+      }
+
+      .quiz-container, .weather-container {
+        padding: 1rem;
+      }
+
+      .question, #weather-result h2 {
+        font-size: 1.2rem;
+      }
+    }
+
+    /* Tablet (601px–900px) */
+    @media (min-width: 601px) and (max-width: 900px) {
+      .container {
+        grid-template-columns: 1fr;
+      }
+
+      nav a {
+        font-size: 1.1rem;
+      }
+    }
+
+    /* Desktop (>900px) */
+    @media (min-width: 901px) {
+      .container {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <ul>
+      <li><a href="#quiz">Quiz</a></li>
+      <li><a href="#weather">Weather</a></li>
+      <li><a href="#">Home</a></li>
+    </ul>
+  </nav>
+
+  <div class="container">
+    <!-- Quiz Section -->
+    <section class="quiz-container" id="quiz">
+      <h1>Interactive Quiz</h1>
+      <div id="question" class="question"></div>
+      <div id="options" class="options"></div>
+      <button id="next-btn">Next</button>
+      <div id="result"></div>
+    </section>
+
+    <!-- Weather Section -->
+    <section class="weather-container" id="weather">
+      <h1>Weather App</h1>
+      <input type="text" id="city-input" placeholder="Enter city name">
+      <button onclick="getWeather()">Get Weather</button>
+      <div id="weather-result"></div>
+    </section>
+  </div>
+
+  <script>
+    // Quiz Logic
+    const quizData = [
+      {
+        question: "What is the capital of France?",
+        options: ["Paris", "London", "Berlin", "Madrid"],
+        answer: "Paris"
+      },
+      {
+        question: "Which planet is known as the Red Planet?",
+        options: ["Jupiter", "Mars", "Venus", "Mercury"],
+        answer: "Mars"
+      },
+      {
+        question: "What is 2 + 2?",
+        options: ["3", "4", "5", "6"],
+        answer: "4"
+      }
+    ];
+
+    let currentQuestion = 0;
+    let score = 0;
+
+    const questionEl = document.getElementById("question");
+    const optionsEl = document.getElementById("options");
+    const nextBtn = document.getElementById("next-btn");
+    const resultEl = document.getElementById("result");
+
+    function loadQuestion() {
+      const currentQuiz = quizData[currentQuestion];
+      questionEl.textContent = currentQuiz.question;
+      optionsEl.innerHTML = "";
+
+      currentQuiz.options.forEach(option => {
+        const button = document.createElement("button");
+        button.textContent = option;
+        button.addEventListener("click", () => selectAnswer(option));
+        optionsEl.appendChild(button);
+      });
+
+      nextBtn.style.display = "none";
+    }
+
+    function selectAnswer(selected) {
+      const currentQuiz = quizData[currentQuestion];
+      if (selected === currentQuiz.answer) {
+        score++;
+        resultEl.textContent = "Correct!";
+      } else {
+        resultEl.textContent = `Wrong! The correct answer is ${currentQuiz.answer}.`;
+      }
+
+      optionsEl.querySelectorAll("button").forEach(btn => {
+        btn.disabled = true;
+        if (btn.textContent === currentQuiz.answer) {
+          btn.style.backgroundColor = "#28a745";
+        } else if (btn.textContent === selected && selected !== currentQuiz.answer) {
+          btn.style.backgroundColor = "#dc3545";
+        }
+      });
+
+      nextBtn.style.display = "block";
+    }
+
+    nextBtn.addEventListener("click", () => {
+      currentQuestion++;
+      resultEl.textContent = "";
+      if (currentQuestion < quizData.length) {
+        loadQuestion();
+      } else {
+        questionEl.textContent = "Quiz Completed!";
+        optionsEl.innerHTML = "";
+        resultEl.textContent = `Your score: ${score} out of ${quizData.length}`;
+        nextBtn.style.display = "none";
+      }
+    });
+
+    loadQuestion();
+
+    // Weather Logic
+    async function getWeather() {
+      const city = document.getElementById("city-input").value;
+      const apiKey = "b1b15e88fa797225412429c1c50c122a1"; // Replace with your OpenWeatherMap API key
+      const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`;
+
+      const resultEl = document.getElementById("weather-result");
+
+      try {
+        const response = await fetch(url);
+        if (!response.ok) {
+          throw new Error("City not found");
+        }
+        const data = await response.json();
+
+        const temp = data.main.temp;
+        const description = data.weather[0].description;
+        const cityName = data.name;
+
+        resultEl.innerHTML = `
+          <h2>${cityName}</h2>
+          <p>Temperature: ${temp}°C</p>
+          <p>Weather: ${description}</p>
+        `;
+      } catch (error) {
+        resultEl.textContent = `Error: ${error.message}`;
+      }
+    }
+  </script>
+</body>
+</html>
